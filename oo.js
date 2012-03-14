@@ -20,7 +20,7 @@
     };
     extend = function(obj, source) {
         for (prop in source) {
-            if (hasOwn(source, prop)) {
+            if (hasOwn.call(source, prop)) {
                 objProp = obj[prop];
                 sourceProp = source[prop];
                 if (toString.call(objProp) === object &&
