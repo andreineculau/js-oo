@@ -1,21 +1,30 @@
-(function(Class){
-    var base, ctor, extend, inherits, root = this;
+/*global define, module, exports*/
+(function(root){
+    'use strict';
+    var base, ctor, extend, inherits,
+        prop, objProp, sourceProp,
+        object = '[object Object]',
+        toString = Object.prototype.toString,
+        hasOwn = Object.prototype.hasOwnProperty;
+
     base = function(){
         this.initialize.apply(this, arguments);
     };
     base.prototype = {
         initialize: function(){}
-    }
+    };
     base.extend = function (protoProps, classProps) {
         var child = inherits(this, protoProps, classProps);
         child.extend = this.extend;
         return child;
     };
     extend = function(obj, source) {
-        for (var prop in source) {
-            if (source.hasOwnProperty(prop)) {
-                var objProp = obj[prop], sourceProp = source[prop], object = '[object Object]';
-                if (toString.call(objProp) === object && toString.call(sourceProp) === object) {
+        for (prop in source) {
+            if (hasOwn(source, prop)) {
+                objProp = obj[prop];
+                sourceProp = source[prop];
+                if (toString.call(objProp) === object &&
+                    toString.call(sourceProp) === object) {
                     extend(objProp, sourceProp);
                 }
                 else {
@@ -29,15 +38,38 @@
     };
     ctor = function(){};
     inherits = function(parent, protoProps, classProps) {
-        var child = protoProps && protoProps.hasOwnProperty('constructor') ? protoProps.constructor
-            : function(){ return parent.apply(this, arguments) };
+        var child = (protoProps && protoProps.hasOwnProperty('constructor') ?
+                     protoProps.constructor :
+                     function() {return parent.apply(this, arguments);});
         extend(child, parent);
         ctor.prototype = child.__super__ = parent.prototype;
         child.prototype = new ctor;
-        protoProps && extend(child.prototype, protoProps);
-        classProps && extend(child, classProps);
+        if (protoProps) {
+            extend(child.prototype, protoProps);
+        }
+        if (classProps) {
+            extend(child, classProps);
+        }
         child.prototype.constructor = child;
         return child;
     };
-    root[Class] = base;
-})('Class');
+
+    // CommonJS module is defined
+    if (typeof exports !== 'undefined') {
+        if (typeof module !== 'undefined' && module.exports) {
+            // Export module
+            module.exports = base;
+        }
+        exports.base = base;
+
+    } else if (typeof define === 'function' && define.amd) {
+        // Register as a named module with AMD.
+        define('oo', function() {
+            return base;
+        });
+
+        // Integrate with Underscore.js
+    } else if (typeof root.Class !== 'undefined') {
+        root.Class = base;
+    }
+})(this || window);
