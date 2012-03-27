@@ -64,7 +64,7 @@
 
     } else if (typeof define === 'function' && define.amd) {
         // Register as a named module with AMD.
-        define('oo', function() {
+        define(function() {
             return base;
         });
 
