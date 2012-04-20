@@ -1,11 +1,13 @@
 /*global define, module, exports*/
 (function(root){
     'use strict';
-    var base, ctor, extend, inherits,
-        prop, objProp, sourceProp,
-        object = '[object Object]',
+    var base, Ctor, extend, inherits,
         toString = Object.prototype.toString,
-        hasOwn = Object.prototype.hasOwnProperty;
+        hasOwn = Object.prototype.hasOwnProperty,
+        isObject = function(obj) {
+            return (typeof obj !== 'undefined' &&
+                    toString.call(obj) === '[object Object]');
+        };
 
     base = function(){
         this.initialize.apply(this, arguments);
@@ -19,12 +21,12 @@
         return child;
     };
     extend = function(obj, source) {
+        var prop, objProp, sourceProp;
         for (prop in source) {
             if (hasOwn.call(source, prop)) {
                 objProp = obj[prop];
                 sourceProp = source[prop];
-                if (toString.call(objProp) === object &&
-                    toString.call(sourceProp) === object) {
+                if (isObject(objProp) && isObject(sourceProp)) {
                     extend(objProp, sourceProp);
                 }
                 else {
@@ -36,14 +38,14 @@
             }
         }
     };
-    ctor = function(){};
+    Ctor = function(){};
     inherits = function(parent, protoProps, classProps) {
         var child = (protoProps && protoProps.hasOwnProperty('constructor') ?
                      protoProps.constructor :
                      function() {return parent.apply(this, arguments);});
         extend(child, parent);
-        ctor.prototype = child.__super__ = parent.prototype;
-        child.prototype = new ctor;
+        Ctor.prototype = child.__super__ = parent.prototype;
+        child.prototype = new Ctor();
         if (protoProps) {
             extend(child.prototype, protoProps);
         }
