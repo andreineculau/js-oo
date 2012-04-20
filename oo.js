@@ -69,7 +69,7 @@
         });
 
         // Integrate with Underscore.js
-    } else if (typeof root.Class !== 'undefined') {
+    } else if (typeof root.Class === 'undefined') {
         root.Class = base;
     }
 })(this || window);
